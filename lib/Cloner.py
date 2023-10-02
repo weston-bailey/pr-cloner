@@ -16,11 +16,6 @@ class Cloner:
     def raise_exception():
             raise Exception("cloner requires a valid github repository owner repository name to run!")    
 
-    def add_repo_url(self, repo_url):
-        self.__repo_url = repo_url
-        return self
-
-
     def run(self):
         if not self.__repo_owner or not self.__repo_name:
             raise Exception("cloner requires a valid github repository owner repository name to run!")
@@ -62,7 +57,6 @@ class Cloner:
         for cloning_url in cloning_urls:
             clone_url_string = cloning_url[f"{self.__auth_method}_url"]
             run_subprocess(f"cd cloned_repos/{self.__repo_name} && git clone {clone_url_string} {cloning_url['name']}")
-
 
         return self
 
