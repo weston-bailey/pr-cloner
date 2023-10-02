@@ -1,7 +1,5 @@
 import requests
-import json
 import subprocess
-from pprint import pprint 
 
 class Cloner:
     def __init__(self, repo_owner, repo_name, auth_method = "ssh"):
