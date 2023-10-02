@@ -1,14 +1,71 @@
+import requests
+import json
+import subprocess
+from pprint import pprint 
+
 class Cloner:
-    def __init__(self):
-        pass
+    def __init__(self, repo_owner, repo_name, auth_method = "ssh"):
+        self.__repo_owner = repo_owner
+        self.__repo_name = repo_name
+        self.__auth_method = auth_method
+        if self.__auth_method not in ("ssh", "https"):
+            raise Exception("auth method must be either ssh or https.")
 
-    def add_url(self):
-        pass
+    def __repr__(self):
+        return f"repo owner: {self.__repo_owner}, repo name: {self.__repo_name}, auth method: {self.__auth_method}"
 
-    def raise_no_repo_url_exception(self):
-        pass
+    @staticmethod    
+    def raise_exception():
+            raise Exception("cloner requires a valid github repository owner repository name to run!")    
+
+    def add_repo_url(self, repo_url):
+        self.__repo_url = repo_url
+        return self
+
 
     def run(self):
-        pass
+        if not self.__repo_owner or not self.__repo_name:
+            raise Exception("cloner requires a valid github repository owner repository name to run!")
+        # get all pulls regardless of how many there are
+        page = 1
+        pulls = []
+        while True:
+            response = requests.get(f"https://api.github.com/repos/{self.__repo_owner}/{self.__repo_name}/pulls?per_page=100&page={page}")
+            response = response.json()
+            if len(response) == 0:
+                break
+            pulls += response
+            page += 1
+
+        # extracted wanted data
+        def map_url(pull):
+            return { 
+                "name": pull["user"]["login"], 
+                "ssh_url": pull["head"]["repo"]["ssh_url"],
+                "https_url": pull["head"]["repo"]["html_url"] + ".git"
+            } 
+
+        cloning_urls = list(map(map_url, pulls))
+        
+        def run_subprocess(command):
+            completed_process = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+            if completed_process.returncode != 0:
+                print(f"subprocess '{command}' gave non 0 exit code {completed_process.returncode}.")
+            if completed_process.stderr:
+                print(completed_process.stderr)
+            if completed_process.stdout:
+                print(completed_process.stdout)
+
+            return completed_process
+
+        run_subprocess(f"mkdir -p cloned_repos/{self.__repo_name}")
+
+        for cloning_url in cloning_urls:
+            clone_url_string = cloning_url[f"{self.__auth_method}_url"]
+            run_subprocess(f"cd cloned_repos/{self.__repo_name} && git clone {clone_url_string} {cloning_url['name']}")
+
+
+        return self
 
 
