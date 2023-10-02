@@ -18,7 +18,7 @@ def main():
         print(e)
         print("""
 Usage:
-    python3 main.py "github owner/organization name" "github repository name"
+    python3 main.py "github owner/organization name" "github repository name" "(optional) auth method ('ssh or 'https')" 
     
 Example Usages:
     python3 main WDI-SEA sei-tic-tac-toe
