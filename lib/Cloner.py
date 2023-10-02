@@ -2,6 +2,15 @@ import requests
 import subprocess
 
 class Cloner:
+    """
+    Tool to automate cloning all open pull requests on a specified github repository.\n
+    cloner = Cloner(\n
+        repo_owner: str = gh owner/organization, \n
+        repo_name: str = name of repo to be cloned, \n
+        auth_method: str = auth method used for cloner (defaults to "ssh", can also be "https")\n
+    )\n
+    cloner.run() -> self: clones all open pulls into cloned_repos/< repo_name >/< pr author name >
+    """
     def __init__(self, repo_owner, repo_name, auth_method = "ssh"):
         self.__repo_owner = repo_owner
         self.__repo_name = repo_name
@@ -18,7 +27,8 @@ class Cloner:
 
     def run(self):
         if not self.__repo_owner or not self.__repo_name:
-            raise Exception("cloner requires a valid github repository owner repository name to run!")
+            Cloner.raise_exception()
+
         # get all pulls regardless of how many there are
         page = 1
         pulls = []
@@ -39,7 +49,8 @@ class Cloner:
             } 
 
         cloning_urls = list(map(map_url, pulls))
-        
+
+        # clone down all prs
         def run_subprocess(command):
             completed_process = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
