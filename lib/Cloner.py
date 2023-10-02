@@ -9,7 +9,7 @@ class Cloner:
         self.__repo_name = repo_name
         self.__auth_method = auth_method
         if self.__auth_method not in ("ssh", "https"):
-            raise Exception("auth method must be either ssh or https.")
+            raise Exception(f" Invalid auth method: {self.__auth_method}.Auth method must be either 'ssh' or 'https'.")
 
     def __repr__(self):
         return f"repo owner: {self.__repo_owner}, repo name: {self.__repo_name}, auth method: {self.__auth_method}"
